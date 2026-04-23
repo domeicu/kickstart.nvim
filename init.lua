@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -330,6 +330,96 @@ require('lazy').setup({
   -- you do for a plugin at the top level, you can do for a dependency.
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
+
+  -- Alpha welcome plugin
+  {
+    'goolord/alpha-nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      local alpha = require('alpha')
+      local dashboard = require('alpha.themes.dashboard')
+
+      dashboard.section.header.val = {
+        "___                .--,-``-.     ",
+        "  ,---,                                     ,---,    ,----.. /  .\\      ,----,  /   /     '.   ",
+        ",--.' |                ,---,             ,`--.' |   /   /   \\\\  ; |   .'   .' \\/ ../        ;  ",
+        "|  |  :              ,---.'|            /    /  :  /   .     :`--\"  ,----,'    \\ ``\\  .`-    ' ",
+        ":  :  :              |   | :           :    |.' ' .   /   ;.  \\     |    :  .  ;\\___\\/   \\   : ",
+        ":  |  |,--.   ,---.  :   : :           `----':  |.   ;   /  ` ;     ;    |.'  /      \\   :   | ",
+        "|  :  '   |  /     \\ :     |,-.           '   ' ;;   |  ; \\ ; |     `----'/  ;       /  /   /  ",
+        "|  |   /' : /    /  ||   : '  |           |   | ||   :  | ; | '       /  ;  /        \\  \\   \\  ",
+        "'  :  | | |.    ' / ||   |  / :           '   : ;.   |  ' ' ' :      ;  /  /-,   ___ /   :   | ",
+        "|  |  ' | :'   ;   /|'   : |: |           |   | ''   ;  \\; /  |__   /  /  /.`|  /   /\\   /   : ",
+        "|  :  :_:,''   |  / ||   | '/ :           '   : | \\   \\  ',  /  .\\./__;      : / ,,/  ',-    . ",
+        "|  | ,'    |   :    ||   :    |           ;   |.'  ;   :    /\\  ; |   :    .'  \\ ''\\        ;  ",
+        "`--''       \\   \\  / /    \\  /            '---'     \\   \\ .'  `--\";   | .'      \\   \\     .'   ",
+        "             `----'  `-'----'                        `---`        `---'          `--`-,,-'     ",
+        "                                                                                               ",
+      }
+
+      dashboard.section.buttons.val = {
+        dashboard.button("f", "  Find File",        ":Telescope find_files<CR>"),
+        dashboard.button("r", "  Recent Files",      ":Telescope oldfiles<CR>"),
+        dashboard.button("n", "  New File",          ":ene <BAR> startinsert<CR>"),
+        dashboard.button("c", "  Config",            ":e ~/.config/nvim/init.lua<CR>"),
+        dashboard.button("q", "  Quit",              ":qa<CR>"),
+      }
+      dashboard.section.buttons.opts = {
+        spacing = 0,
+      }
+      dashboard.section.footer.val = {
+        "",
+        "  " .. vim.fn.getcwd(),
+        " ",
+        "Let us hold unswervingly to the hope we profess, for he who promised is faithful.",
+        "And let us consider how we may spur one another on toward love and good deeds,",
+        "not giving up meeting together, as some are in the habit of doing,",
+        "but encouraging one another — and all the more as you see the Day approaching.",
+        "",
+      }
+
+      alpha.setup(dashboard.config)
+      -- Create an augroup to manage the Alpha cursor behavior cleanly
+      local alpha_cursor_group = vim.api.nvim_create_augroup("AlphaCursor", { clear = true })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = alpha_cursor_group,
+        pattern = "alpha",
+        callback = function()
+          -- Create a completely transparent highlight group
+          vim.api.nvim_set_hl(0, "AlphaHiddenCursor", { blend = 100, nocombine = true })
+
+          -- Save the user's default cursor settings
+          local old_guicursor = vim.opt.guicursor:get()
+
+          -- Function to hide the cursor
+          local hide_cursor = function()
+            vim.opt.guicursor = "a:AlphaHiddenCursor"
+          end
+
+          -- Function to restore the cursor
+          local restore_cursor = function()
+            vim.opt.guicursor = old_guicursor
+          end
+
+          -- Hide it immediately upon loading alpha
+          hide_cursor()
+
+          -- Restore it when leaving the buffer or window
+          vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
+            buffer = 0,
+            callback = restore_cursor,
+          })
+
+          -- Re-hide it if you switch back to the alpha window
+          vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+            buffer = 0,
+            callback = hide_cursor,
+          })
+        end,
+      })
+    end,
+  },
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -823,7 +913,9 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'domeicu'
+      vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
     end,
   },
 
@@ -965,26 +1057,26 @@ require('lazy').setup({
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
 }, { ---@diagnostic disable-line: missing-fields
-  ui = {
-    -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
+    ui = {
+      -- If you are using a Nerd Font: set icons to an empty table which will use the
+      -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+      icons = vim.g.have_nerd_font and {} or {
+        cmd = '⌘',
+        config = '🛠',
+        event = '📅',
+        ft = '📂',
+        init = '⚙',
+        keys = '🗝',
+        plugin = '🔌',
+        runtime = '💻',
+        require = '🌙',
+        source = '📄',
+        start = '🚀',
+        task = '📌',
+        lazy = '💤 ',
+      },
     },
-  },
-})
+  })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
