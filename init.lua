@@ -340,78 +340,100 @@ require('lazy').setup({
       local dashboard = require('alpha.themes.dashboard')
 
       dashboard.section.header.val = {
-        "___                .--,-``-.     ",
-        "  ,---,                                     ,---,    ,----.. /  .\\      ,----,  /   /     '.   ",
-        ",--.' |                ,---,             ,`--.' |   /   /   \\\\  ; |   .'   .' \\/ ../        ;  ",
-        "|  |  :              ,---.'|            /    /  :  /   .     :`--\"  ,----,'    \\ ``\\  .`-    ' ",
-        ":  :  :              |   | :           :    |.' ' .   /   ;.  \\     |    :  .  ;\\___\\/   \\   : ",
-        ":  |  |,--.   ,---.  :   : :           `----':  |.   ;   /  ` ;     ;    |.'  /      \\   :   | ",
-        "|  :  '   |  /     \\ :     |,-.           '   ' ;;   |  ; \\ ; |     `----'/  ;       /  /   /  ",
-        "|  |   /' : /    /  ||   : '  |           |   | ||   :  | ; | '       /  ;  /        \\  \\   \\  ",
-        "'  :  | | |.    ' / ||   |  / :           '   : ;.   |  ' ' ' :      ;  /  /-,   ___ /   :   | ",
-        "|  |  ' | :'   ;   /|'   : |: |           |   | ''   ;  \\; /  |__   /  /  /.`|  /   /\\   /   : ",
-        "|  :  :_:,''   |  / ||   | '/ :           '   : | \\   \\  ',  /  .\\./__;      : / ,,/  ',-    . ",
-        "|  | ,'    |   :    ||   :    |           ;   |.'  ;   :    /\\  ; |   :    .'  \\ ''\\        ;  ",
-        "`--''       \\   \\  / /    \\  /            '---'     \\   \\ .'  `--\";   | .'      \\   \\     .'   ",
-        "             `----'  `-'----'                        `---`        `---'          `--`-,,-'     ",
-        "                                                                                               ",
+        "                |                ",
+        "            \\       /            ",
+        "              .---.              ",
+        "         '-.  |   |  .-'         ",
+        "           ___|   |___           ",
+        "      -=  [           ]  =-      ",
+        "          `---.   .---'          ",
+        "       __||__ |   | __||__       ",
+        "       '-..-' |   | '-..-'       ",
+        "         ||   |   |   ||         ",
+        "         ||_.-|   |-,_||         ",
+        "       .-\"`   `\"`'`   `\"-.       ",
+        "     .'                   '.     ",
       }
 
-      dashboard.section.buttons.val = {
-        dashboard.button("f", "  Find File",        ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent Files",      ":Telescope oldfiles<CR>"),
-        dashboard.button("n", "  New File",          ":ene <BAR> startinsert<CR>"),
-        dashboard.button("c", "  Config",            ":e ~/.config/nvim/init.lua<CR>"),
-        dashboard.button("q", "  Quit",              ":qa<CR>"),
+      dashboard.section.header.opts = {
+        position = "center",
+        hl = "AlphaHeader",
       }
+
+      vim.api.nvim_set_hl(0, "AlphaHeader", { fg = "#F1FFD9" })
+
+      dashboard.section.buttons.val = {
+        dashboard.button("f", "  Find",   ":Telescope find_files<CR>"),
+        dashboard.button("c", "  Config",       ":e ~/.config/nvim/init.lua<CR>"),
+        dashboard.button("q", "  Quit",         ":qa<CR>"),
+      }
+
       dashboard.section.buttons.opts = {
         spacing = 0,
       }
+
+      for _, button in ipairs(dashboard.section.buttons.val) do
+        button.opts.hl = "Normal"
+        button.opts.hl_shortcut = "Normal"
+      end
+
+      local cwd = {
+        type = "text",
+        val = "  " .. vim.fn.getcwd(),
+        opts = {
+          position = "center",
+          hl = "AlphaCwd",
+        },
+      }
+
+      vim.api.nvim_set_hl(0, "AlphaCwd", { fg = "#6B6B68" })
+
       dashboard.section.footer.val = {
         "",
-        "  " .. vim.fn.getcwd(),
-        " ",
-        "Let us hold unswervingly to the hope we profess, for he who promised is faithful.",
-        "And let us consider how we may spur one another on toward love and good deeds,",
-        "not giving up meeting together, as some are in the habit of doing,",
-        "but encouraging one another — and all the more as you see the Day approaching.",
+        "Let us hold unswervingly to the hope we profess,",
+        "for he who promised is faithful.",
         "",
       }
 
+      dashboard.section.footer.opts = {
+        position = "center",
+        hl = "AlphaFooter",
+      }
+
+      vim.api.nvim_set_hl(0, "AlphaFooter", { fg = "#F1FFD9" })
+
+      dashboard.config.layout = {
+        { type = "padding", val = 2 },
+        dashboard.section.header,
+        { type = "padding", val = 1 },
+        cwd,
+        { type = "padding", val = 1 },
+        dashboard.section.buttons,
+        { type = "padding", val = 1 },
+        dashboard.section.footer,
+      }
+
       alpha.setup(dashboard.config)
-      -- Create an augroup to manage the Alpha cursor behavior cleanly
+
       local alpha_cursor_group = vim.api.nvim_create_augroup("AlphaCursor", { clear = true })
 
       vim.api.nvim_create_autocmd("FileType", {
         group = alpha_cursor_group,
         pattern = "alpha",
         callback = function()
-          -- Create a completely transparent highlight group
           vim.api.nvim_set_hl(0, "AlphaHiddenCursor", { blend = 100, nocombine = true })
-
-          -- Save the user's default cursor settings
           local old_guicursor = vim.opt.guicursor:get()
-
-          -- Function to hide the cursor
           local hide_cursor = function()
             vim.opt.guicursor = "a:AlphaHiddenCursor"
           end
-
-          -- Function to restore the cursor
           local restore_cursor = function()
             vim.opt.guicursor = old_guicursor
           end
-
-          -- Hide it immediately upon loading alpha
           hide_cursor()
-
-          -- Restore it when leaving the buffer or window
           vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
             buffer = 0,
             callback = restore_cursor,
           })
-
-          -- Re-hide it if you switch back to the alpha window
           vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
             buffer = 0,
             callback = hide_cursor,

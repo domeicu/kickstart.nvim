@@ -7,14 +7,14 @@ vim.o.termguicolors = true
 vim.g.colors_name = "domeicu"
 
 local palette = {
-  bg_dark      = "#0A0604", -- Activity bar / absolute darkest
-  bg_base      = "#120C07", -- Editor / sidebar / terminal
-  fg_cream     = "#E6D5C3", -- Primary text / variables
-  fg_mocha     = "#5A4031", -- Comments / secondary text
-  matcha_acc   = "#D7EEA5", -- Keywords / Strings / Functions
-  matcha_sub   = "#B5C98E", -- Numbers / Constants / Structs / Types
-  selection    = "#2A1E14", -- Visual selection (approximate for #856A5440 over bg_base)
-  matcha_trans = "#1C2411", -- Word highlight background (approximate)
+  bg_dark      = "#070707", -- Activity bar / absolute darkest
+  bg_base      = "#0E0E0D", -- Editor / sidebar / terminal
+  fg_cream     = "#CCC8C2", -- Primary text / variables
+  fg_mocha     = "#6B6B68", -- Comments / secondary text
+  matcha_acc   = "#F1FFD9", -- Keywords / Strings / Functions
+  matcha_sub   = "#C0CFA7", -- Numbers / Constants / Structs / Types
+  selection    = "#1E1E1C", -- Visual selection
+  matcha_trans = "#171F0E", -- Word highlight background
 }
 
 local function hi(group, opts)
