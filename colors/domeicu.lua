@@ -96,7 +96,7 @@ hi("@tag",                  { fg = palette.accent })
 hi("@tag.attribute",        { fg = palette.accent_dim })
 
 -- =========================================
--- Common Plugins (Telescope, NvimTree)
+-- Plugins
 -- =========================================
 hi("TelescopeNormal",       { fg = palette.fg_primary })
 hi("TelescopeBorder",       { fg = palette.fg_muted })
